@@ -473,13 +473,13 @@ PTranslation translate(PContext ctx,
     try {
         return ctx_rspcode->translate(bytes, num_bytes, base_address, max_instructions, flags);
     } catch (BadDataError &err) {
-        snprintf(error_str, ERROR_STR_SIZE, "BadDataError: %s", err.what());
+        snprintf(error_str, ERROR_STR_SIZE, "BadDataError: %s", err.explain.c_str());
         return nullptr;
     } catch (UnimplError &err) {
-        snprintf(error_str, ERROR_STR_SIZE, "UnimplError: %s", err.what());
+        snprintf(error_str, ERROR_STR_SIZE, "UnimplError: %s", err.explain.c_str());
         return nullptr;
     } catch (DecoderError &err) {
-        snprintf(error_str, ERROR_STR_SIZE, "DecoderError: %s", err.what());
+        snprintf(error_str, ERROR_STR_SIZE, "DecoderError: %s", err.explain.c_str());
         return nullptr;
     } catch (std::bad_alloc &err) {
         snprintf(error_str, ERROR_STR_SIZE, "std::bad_alloc: %s", err.what());
