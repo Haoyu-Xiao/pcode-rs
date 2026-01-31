@@ -128,7 +128,6 @@ public:
   AddrSpaceManager *getManager(void) const; ///< Get the space manager
   const Translate *getTrans(void) const; ///< Get the processor translator
   spacetype getType(void) const; ///< Get the type of space
-  uint4 getFlags(void) const { return flags; } ///< Get the cached attributes
   int4 getDelay(void) const;     ///< Get number of heritage passes being delayed
   int4 getDeadcodeDelay(void) const; ///< Get number of passes before deadcode removal is allowed
   int4 getIndex(void) const;	///< Get the integer identifier

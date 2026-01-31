@@ -540,6 +540,7 @@ uintb JoinSpace::decodeAttributes(Decoder &decoder,uint4 &size) const
 
 {
   vector<VarnodeData> pieces;
+  uint4 sizesum = 0;
   uint4 logicalsize = 0;
   for(;;) {
     uint4 attribId = decoder.getNextAttributeId();
@@ -579,6 +580,7 @@ uintb JoinSpace::decodeAttributes(Decoder &decoder,uint4 &size) const
       s2.unsetf(ios::dec | ios::hex | ios::oct);
       s2 >> vdat.size;
     }
+    sizesum += vdat.size;
   }
   JoinRecord *rec = getManager()->findAddJoin(pieces,logicalsize);
   size = rec->getUnified().size;
