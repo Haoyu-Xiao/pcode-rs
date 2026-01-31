@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ffi::CString, fmt::Display, ops::BitOr, os::raw::c_void};
+use std::{fmt::Display, ops::BitOr, os::raw::c_void};
 
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
@@ -31,17 +31,17 @@ impl Context {
         max_insns: usize,
         flags: TranslationFlags,
     ) -> Result<Vec<PcodeOp>> {
-        use std::ffi::{c_uint, c_ulonglong, CStr};
+        use std::ffi::{c_char, c_uint, c_ulonglong, CStr};
 
         // if bytes.len() < num_bytes {
         //     return Err(anyhow::anyhow!("num_bytes exceeds the length of bytes"));
         // }
         let num_bytes = bytes.len();
-        let bytes = unsafe { CStr::from_bytes_with_nul_unchecked(bytes) };
+        let ptr = bytes.as_ptr() as *const c_char;
         let mut translation = unsafe {
             translate(
                 self.internal,
-                bytes.as_ptr(),
+                ptr,
                 num_bytes as c_uint,
                 address as c_ulonglong,
                 max_insns as c_uint,
@@ -54,7 +54,7 @@ impl Context {
                     .to_string_lossy()
                     .into_owned()
             };
-            return Err(anyhow::anyhow!(err));
+            return anyhow::bail!(err);
         }
 
         let internal = self.internal;
@@ -67,9 +67,6 @@ impl Context {
             pcode_ops.push(pcode_op.into());
         }
 
-        unsafe {
-            reset_context(self.internal);
-        }
         Ok(pcode_ops)
     }
 
@@ -80,13 +77,12 @@ impl Context {
         address: u64,
         max_instructions: u64,
     ) -> Result<Vec<Instruction>> {
-        use std::ffi::{c_uint, c_ulonglong, CStr, CString};
-
-        let bytes = CString::new(bytes).expect("Failed to create CString");
+        use std::ffi::{c_char, c_uint, c_ulonglong, CStr};
+        let ptr = bytes.as_ptr() as *const c_char;
         let mut disassembly = unsafe {
             disassemble(
                 self.internal,
-                bytes.as_ptr(),
+                ptr,
                 num_bytes as c_uint,
                 address as c_ulonglong,
                 max_instructions as c_uint,
@@ -108,9 +104,6 @@ impl Context {
             instructions.push(instruction.into());
         }
 
-        unsafe {
-            reset_context(self.internal);
-        }
         Ok(instructions)
     }
 }
@@ -276,8 +269,13 @@ impl Display for VarnodeData {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.space {
             AddrSpace::Ram => write!(f, "(ram,0x{:X},{})", self.offset, self.size),
-            AddrSpace::Register => write!(f, "{}", self.reg_name.as_ref().unwrap()),
-            AddrSpace::Register => write!(f, "(reg,{},{})", self.offset, self.size,),
+            AddrSpace::Register => {
+                if let Some(name) = &self.reg_name {
+                    write!(f, "{}", name)
+                } else {
+                    write!(f, "(reg,0x{:X},{})", self.offset, self.size)
+                }
+            }
             AddrSpace::Unique => write!(f, "(unique,{},{})", self.offset, self.size),
             AddrSpace::Stack => write!(f, "(stack,0x{:X},{})", self.offset, self.size),
             AddrSpace::Constant => write!(f, "(const,{},{})", self.offset, self.size),
