@@ -5,7 +5,9 @@ All notable changes to this project will be documented in this file.
 The format is based on Keep a Changelog, and the project aspires to follow
 Semantic Versioning for tagged releases.
 
-## [Unreleased] - 2026-01-31
+## [Unreleased]
+
+## [0.2.0] - 2026-01-31
 
 ### Added
 - Workspace maintenance crate `xtask`.
@@ -40,4 +42,3 @@ Semantic Versioning for tagged releases.
   - `cargo run -p xtask --release -- bench -b <binary> --lang <id> [--python <interp>] [--verify]`
 - Keep local changes to `cpp/sleigh`/`cpp/processors` committed before running
   `update-ghidra`, which replaces those directories.
-
