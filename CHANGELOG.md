@@ -6,6 +6,8 @@ The format is based on Keep a Changelog, and the project aspires to follow
 Semantic Versioning for tagged releases.
 
 ## [Unreleased]
+### Changed
+- Make `translate` binary optional via `bins` feature flag.
 
 ## [0.2.0] - 2026-01-31
 
